@@ -22,9 +22,10 @@ import sys
 
 import pkg_resources
 import inspect
+import subprocess
 
 
-# -- General configuration ------------------------------------------------
+# -- General configuration ----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
@@ -87,7 +88,7 @@ pygments_style = 'sphinx'
 todo_include_todos = False
 
 
-# -- Options for HTML output ----------------------------------------------
+# -- Options for HTML output --------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -118,13 +119,13 @@ else:
 html_show_sourcelink = False
 
 
-# -- Options for HTMLHelp output ------------------------------------------
+# -- Options for HTMLHelp output ----------------------------------------------
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'SeqTools_doc'
 
 
-# -- Options for LaTeX output ---------------------------------------------
+# -- Options for LaTeX output -------------------------------------------------
 
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
@@ -153,7 +154,7 @@ latex_documents = [
 ]
 
 
-# -- Options for manual page output ---------------------------------------
+# -- Options for manual page output -------------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
@@ -163,7 +164,7 @@ man_pages = [
 ]
 
 
-# -- Options for Texinfo output -------------------------------------------
+# -- Options for Texinfo output -----------------------------------------------
 
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
@@ -175,13 +176,14 @@ texinfo_documents = [
 ]
 
 
-# -- Options for Linkcode extension ---------------------------------------
+# -- Options for Linkcode extension -------------------------------------------
 
 if "READTHEDOCS" in os.environ:
     if os.environ["READTHEDOCS_VERSION"] == "latest":
         linkcode_revision = "master"
     else:
-        linkcode_revision = "{{ readthedocs.v1.vcs.version }}"
+        linkcode_revision = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"])
 else:
     linkcode_revision = "master"
 linkcode_url = "https://github.com/nlgranger/SeqTools/blob/" \
@@ -209,9 +211,9 @@ def linkcode_resolve(domain, info):
 
     try:
         modpath = pkg_resources.require(topmodulename)[0].location
-        filepath = os.path.relpath(
-            inspect.getsourcefile(obj), modpath)
-        assert filepath is not None
+        filepath = os.path.relpath(inspect.getsourcefile(obj), modpath)
+        if filepath is None:
+            return
     except Exception:
         return None
 
@@ -226,6 +228,6 @@ def linkcode_resolve(domain, info):
         filepath=filepath, linestart=linestart, linestop=linestop)
 
 
-# -- Options for Intersphinx extension -------------------------------------
+# -- Options for Intersphinx extension ----------------------------------------
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
